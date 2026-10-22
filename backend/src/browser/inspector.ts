@@ -11,6 +11,7 @@ export class PageInspector {
       const interactiveQuery = 'button, input, select, textarea, a[href], [role="button"], [role="checkbox"], [role="switch"]';
       const nodes = Array.from(document.querySelectorAll(interactiveQuery));
 
+      let index = 0;
       for (const node of nodes) {
         const el = node as HTMLElement;
         const input = el as HTMLInputElement;
@@ -22,17 +23,33 @@ export class PageInspector {
 
         if (!isVisible) continue;
 
+        index++;
+        let stableId = (el.id || '').trim();
+        if (!stableId && input.name) {
+          stableId = input.name.trim();
+        } else if (!stableId && el.getAttribute('aria-label')) {
+          stableId = el.getAttribute('aria-label')!.trim().toLowerCase().replace(/[^a-z0-9_-]/g, '-').slice(0, 30);
+        } else if (!stableId && el.getAttribute('placeholder')) {
+          stableId = el.getAttribute('placeholder')!.trim().toLowerCase().replace(/[^a-z0-9_-]/g, '-').slice(0, 30);
+        } else if (!stableId && el.innerText && el.innerText.trim().length <= 25) {
+          stableId = el.innerText.trim().toLowerCase().replace(/[^a-z0-9_-]/g, '-');
+        } else if (!stableId) {
+          stableId = `cg_${index}`;
+        }
+
+        el.setAttribute('data-clickguide-id', stableId);
+
         let selector = '';
         if (el.id) {
           selector = `#${el.id}`;
         } else if (input.name) {
           selector = `${el.tagName.toLowerCase()}[name="${input.name}"]`;
         } else {
-          selector = el.tagName.toLowerCase();
+          selector = `[data-clickguide-id="${stableId}"]`;
         }
 
         results.push({
-          id: el.id || '',
+          id: stableId,
           tag: el.tagName.toLowerCase(),
           role: el.getAttribute('role') || undefined,
           name: input.name || undefined,

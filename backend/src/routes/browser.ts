@@ -7,7 +7,7 @@ import { config } from '../config.js';
 export const browserRouter = Router();
 
 const navigateSchema = z.object({
-  url: z.string().url()
+  url: z.string().min(1)
 });
 
 const actionSchema = z.object({

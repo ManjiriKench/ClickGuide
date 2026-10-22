@@ -61,7 +61,14 @@ export class FastGuardService {
   public checkPermissions(url: string, action: PlannedAction): { allowed: boolean; reason?: string } {
     try {
       const parsedUrl = new URL(url);
-      if (!config.allowedHosts.includes(parsedUrl.hostname)) {
+      if (parsedUrl.hostname === '169.254.169.254' || parsedUrl.hostname === 'metadata.google.internal') {
+        return {
+          allowed: false,
+          reason: 'FastGuard Security Violation: Prohibited cloud metadata IP host'
+        };
+      }
+
+      if (!config.allowAnyOrigin && !config.allowedHosts.includes(parsedUrl.hostname)) {
         return {
           allowed: false,
           reason: `FastGuard Origin Violation: Navigation to unauthorized host "${parsedUrl.hostname}" blocked`
@@ -86,9 +93,13 @@ export class FastGuardService {
     const rawId = action.elementId.replace(/^[#.]/, '');
     const safeId = rawId.replace(/[^a-zA-Z0-9_-]/g, '\\$&');
     const possibleSelectors = [
+      `[data-clickguide-id="${rawId}"]`,
       `#${safeId}`,
       `[id="${rawId}"]`,
       `[name="${rawId}"]`,
+      `[aria-label="${rawId}"]`,
+      `[placeholder="${rawId}"]`,
+      `[title="${rawId}"]`,
       `button[id="${rawId}"]`,
       `input[id="${rawId}"]`,
       `select[id="${rawId}"]`

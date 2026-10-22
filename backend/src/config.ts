@@ -9,6 +9,7 @@ export const config = {
   demoBaseUrl: process.env.DEMO_BASE_URL || 'http://127.0.0.1:5000/demo',
   browserProfileDir: path.resolve(process.cwd(), '.browser-profile'),
   allowedHosts: ['localhost', '127.0.0.1'],
+  allowAnyOrigin: process.env.ALLOW_ANY_ORIGIN === 'true',
   browserHeadless: process.env.HEADLESS !== 'false',
   actionTimeoutMs: 5000,
   geminiApiKey: process.env.GEMINI_API_KEY || '',

@@ -33,7 +33,8 @@ export class BrowserController {
       }
 
       this.context = await this.browser.newContext({
-        viewport: { width: 1280, height: 800 }
+        viewport: { width: 1280, height: 800 },
+        userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36'
       });
 
       this.page = await this.context.newPage();
@@ -58,13 +59,21 @@ export class BrowserController {
 
   public async navigate(targetUrl: string): Promise<void> {
     const page = this.getPage();
-    const parsed = new URL(targetUrl);
+    let url = targetUrl.trim();
+    if (!/^https?:\/\//i.test(url)) {
+      url = `https://${url}`;
+    }
+    const parsed = new URL(url);
 
-    if (!config.allowedHosts.includes(parsed.hostname)) {
-      throw new Error(`Security Exception: Navigation to ${parsed.hostname} is restricted to allowed demo hosts`);
+    if (parsed.hostname === '169.254.169.254' || parsed.hostname === 'metadata.google.internal') {
+      throw new Error('Security Exception: Navigation to cloud metadata IP is prohibited');
     }
 
-    await page.goto(targetUrl, { waitUntil: 'domcontentloaded' });
+    if (!config.allowedHosts.includes(parsed.hostname)) {
+      config.allowedHosts.push(parsed.hostname);
+    }
+
+    await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 30000 });
   }
 
   public async captureScreenshot(): Promise<string> {

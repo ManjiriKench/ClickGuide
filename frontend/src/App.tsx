@@ -22,6 +22,7 @@ export function App() {
   const [deadlineMode, setDeadlineMode] = useState(false);
   const [agentStatus, setAgentStatus] = useState<AgentStatus>('idle');
   const [browserActive, setBrowserActive] = useState(false);
+  const [currentUrl, setCurrentUrl] = useState('http://127.0.0.1:5000/demo/index.html');
   const [screenshot, setScreenshot] = useState<string | null>(null);
   const [isLoadingPreview, setIsLoadingPreview] = useState(false);
   const [timeline, setTimeline] = useState<ActionResult[]>([]);
@@ -93,6 +94,22 @@ export function App() {
     }
   };
 
+  const handleNavigate = async (url: string) => {
+    if (!browserActive) {
+      await handleLaunchBrowser();
+    }
+    setAgentStatus('executing');
+    try {
+      await api.navigateBrowser(url);
+      setCurrentUrl(url);
+      await refreshScreenshot();
+      setAgentStatus('idle');
+    } catch (err: unknown) {
+      console.error(err);
+      setAgentStatus('error');
+    }
+  };
+
   const handleStartTask = async () => {
     if (!browserActive) {
       await handleLaunchBrowser();
@@ -146,7 +163,6 @@ export function App() {
     setAgentStatus('inspecting');
 
     try {
-      // Phase 3 Context Compiler reduction measurement
       try {
         const ctxRes = await api.fetchContextReduction('compressed', task);
         if (ctxRes.success) {
@@ -169,6 +185,8 @@ export function App() {
 
       setAgentStatus('planning');
 
+      const plannedActions: { action: BrowserAction; expected: string; rollback: BrowserAction }[] = [];
+
       if (modelConfig.hasApiKey) {
         try {
           const gemmaPlan = await api.planTaskWithGemma(task);
@@ -182,6 +200,27 @@ export function App() {
               model: gemmaPlan.metrics.model
             }));
           }
+
+          if (gemmaPlan.plan && gemmaPlan.plan.actions && gemmaPlan.plan.actions.length > 0) {
+            for (const act of gemmaPlan.plan.actions) {
+              const el = snapshot.elements.find((e) => e.id === act.elementId || e.selector.includes(act.elementId));
+              const targetSelector = el ? el.selector : `#${act.elementId}`;
+              plannedActions.push({
+                action: {
+                  type: act.type as any,
+                  selector: targetSelector,
+                  value: act.value,
+                  description: act.description || `${act.type.toUpperCase()} on ${act.elementId}`
+                },
+                expected: act.expectedResult,
+                rollback: {
+                  type: act.type as any,
+                  selector: targetSelector,
+                  description: `Undo ${act.type} on ${act.elementId}`
+                }
+              });
+            }
+          }
         } catch (planErr) {
           console.warn('Gemma 4 planning notice:', planErr);
         }
@@ -190,16 +229,16 @@ export function App() {
       }
 
       if (mode === 'guided') {
-        // Phase 5 Guided Mode highlight inside browser
-        await api.showGuidedHighlight('report-format', 'Select CSV from the report format dropdown');
+        const targetId = plannedActions[0]?.action.selector.replace(/^[#.]/, '') || 'report-format';
+        const instruction = plannedActions[0]?.action.description || 'Interact with the highlighted element';
+        await api.showGuidedHighlight(targetId, instruction);
         await refreshScreenshot();
         setAgentStatus('idle');
         return;
       }
 
-      const plannedActions: { action: BrowserAction; expected: string; rollback: BrowserAction }[] = [];
-
-      const lowerTask = task.toLowerCase();
+      if (plannedActions.length === 0) {
+        const lowerTask = task.toLowerCase();
 
       if (lowerTask.includes('promo') || lowerTask.includes('promotional')) {
         const promoEl = snapshot.elements.find(
@@ -271,6 +310,7 @@ export function App() {
           description: 'Re-submit persisted state'
         }
       });
+      }
 
       let totalDuration = 0;
       const newTimeline: ActionResult[] = [...timeline];
@@ -457,6 +497,8 @@ export function App() {
             onRefreshScreenshot={refreshScreenshot}
             isLoading={isLoadingPreview}
             browserActive={browserActive}
+            currentUrl={currentUrl}
+            onNavigate={handleNavigate}
           />
 
           <Timeline history={timeline} />
