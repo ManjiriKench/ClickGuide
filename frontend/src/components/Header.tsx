@@ -5,9 +5,11 @@ import { AgentStatus } from '../types/index.js';
 interface HeaderProps {
   browserActive: boolean;
   agentStatus: AgentStatus;
+  modelName?: string;
+  hasApiKey?: boolean;
 }
 
-export const Header: React.FC<HeaderProps> = ({ browserActive, agentStatus }) => {
+export const Header: React.FC<HeaderProps> = ({ browserActive, agentStatus, modelName = 'gemma-4-26b-a4b-it', hasApiKey }) => {
   const getStatusLabel = () => {
     switch (agentStatus) {
       case 'idle':
@@ -15,7 +17,7 @@ export const Header: React.FC<HeaderProps> = ({ browserActive, agentStatus }) =>
       case 'inspecting':
         return 'Inspecting DOM...';
       case 'planning':
-        return 'Planning Actions...';
+        return 'Gemma 4 Planning...';
       case 'executing':
         return 'Executing Action...';
       case 'verifying':
@@ -46,6 +48,16 @@ export const Header: React.FC<HeaderProps> = ({ browserActive, agentStatus }) =>
       </div>
 
       <div className="header-right">
+        <div className="status-chip" title="Gemma 4 Primary Reasoning Model">
+          <span className="status-dot active" style={{ backgroundColor: '#a855f7' }} />
+          <span style={{ fontFamily: 'var(--font-mono)', fontSize: '11px' }}>{modelName}</span>
+        </div>
+
+        <div className="status-chip">
+          <span className={`status-dot ${hasApiKey ? 'active' : ''}`} style={{ backgroundColor: hasApiKey ? '#10b981' : '#f59e0b' }} />
+          <span>{hasApiKey ? 'API Key Active' : 'API Key Pending'}</span>
+        </div>
+
         <div className="status-chip">
           <span className={`status-dot ${browserActive ? 'active' : ''}`} />
           <span>{browserActive ? 'Chromium Connected' : 'Browser Offline'}</span>

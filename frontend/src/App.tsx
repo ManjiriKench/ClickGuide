@@ -39,13 +39,24 @@ export function App() {
     inferenceLatencyMs: 0,
     executionLatencyMs: 0,
     totalActionsExecuted: 0,
-    verificationSuccessRate: 100
+    verificationSuccessRate: 100,
+    model: 'gemma-4-26b-a4b-it'
+  });
+
+  const [modelConfig, setModelConfig] = useState<{ model: string; hasApiKey: boolean; timeoutMs: number }>({
+    model: 'gemma-4-26b-a4b-it',
+    hasApiKey: false,
+    timeoutMs: 25000
   });
 
   const checkStatus = useCallback(async () => {
     try {
-      const res = await api.getBrowserStatus();
-      setBrowserActive(res.launched);
+      const [statusRes, configRes] = await Promise.all([
+        api.getBrowserStatus(),
+        api.getModelConfig().catch(() => ({ model: 'gemma-4-26b-a4b-it', hasApiKey: false, timeoutMs: 25000 }))
+      ]);
+      setBrowserActive(statusRes.launched);
+      setModelConfig(configRes);
     } catch {
       setBrowserActive(false);
     }
@@ -95,7 +106,26 @@ export function App() {
       }
 
       setAgentStatus('planning');
-      await new Promise((r) => setTimeout(r, deadlineMode ? 100 : 400));
+
+      if (modelConfig.hasApiKey) {
+        try {
+          const gemmaPlan = await api.planTaskWithGemma(task);
+          if (gemmaPlan.metrics) {
+            setMetrics((prev) => ({
+              ...prev,
+              inferenceLatencyMs: gemmaPlan.metrics.latencyMs,
+              promptTokens: gemmaPlan.metrics.promptTokens,
+              completionTokens: gemmaPlan.metrics.completionTokens,
+              totalTokens: gemmaPlan.metrics.totalTokens,
+              model: gemmaPlan.metrics.model
+            }));
+          }
+        } catch (planErr) {
+          console.warn('Gemma 4 planning notice:', planErr);
+        }
+      } else {
+        await new Promise((r) => setTimeout(r, deadlineMode ? 100 : 400));
+      }
 
       const plannedActions: { action: BrowserAction; expected: string; rollback: BrowserAction }[] = [];
 
@@ -302,7 +332,12 @@ export function App() {
 
   return (
     <div className="dashboard-container">
-      <Header browserActive={browserActive} agentStatus={agentStatus} />
+      <Header
+        browserActive={browserActive}
+        agentStatus={agentStatus}
+        modelName={modelConfig.model}
+        hasApiKey={modelConfig.hasApiKey}
+      />
 
       <main className="dashboard-main">
         <div className="panel-column">

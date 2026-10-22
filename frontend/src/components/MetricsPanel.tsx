@@ -32,10 +32,10 @@ export const MetricsPanel: React.FC<MetricsPanelProps> = ({ metrics }) => {
         <div className="metric-box">
           <span className="metric-label">
             <Timer size={12} style={{ verticalAlign: 'middle', marginRight: 4 }} />
-            Exec Latency
+            Gemma Latency
           </span>
-          <span className="metric-value">
-            {metrics.executionLatencyMs}ms
+          <span className="metric-value" style={{ color: '#818cf8' }}>
+            {metrics.inferenceLatencyMs > 0 ? `${metrics.inferenceLatencyMs}ms` : '0ms'}
           </span>
         </div>
 

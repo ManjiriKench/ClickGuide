@@ -59,4 +59,33 @@ export interface ModelMetrics {
   executionLatencyMs: number;
   totalActionsExecuted: number;
   verificationSuccessRate: number;
+  model?: string;
+}
+
+export interface PlannedAction {
+  type: 'click' | 'fill' | 'select' | 'check' | 'uncheck' | 'inspect';
+  elementId: string;
+  value?: string;
+  expectedResult: string;
+  description?: string;
+}
+
+export interface PlannedTask {
+  goal: string;
+  explanation: string;
+  actions: PlannedAction[];
+}
+
+export interface GemmaPlanResult {
+  success: boolean;
+  plan?: PlannedTask;
+  error?: string;
+  metrics: {
+    promptTokens: number;
+    completionTokens: number;
+    totalTokens: number;
+    latencyMs: number;
+    model: string;
+  };
+  rawResponse?: string;
 }

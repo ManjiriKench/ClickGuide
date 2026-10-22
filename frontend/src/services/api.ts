@@ -81,3 +81,26 @@ export async function closeBrowser(): Promise<void> {
     throw new Error(errorData.error || `Failed to close browser (${res.status})`);
   }
 }
+
+export async function getModelConfig(): Promise<{ model: string; hasApiKey: boolean; timeoutMs: number }> {
+  const res = await fetch(`${API_BASE}/config`);
+  if (!res.ok) {
+    throw new Error(`Failed to fetch model configuration (${res.status})`);
+  }
+  return res.json();
+}
+
+export async function planTaskWithGemma(goal: string): Promise<import('../types/index.js').GemmaPlanResult> {
+  const res = await fetch(`${API_BASE}/plan`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ goal })
+  });
+
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    throw new Error(data.error || `Task planning failed (${res.status})`);
+  }
+  return data;
+}
+
