@@ -2,6 +2,7 @@ import { Router, Request, Response } from 'express';
 import { z } from 'zod';
 import { browserController } from '../browser/controller.js';
 import { PageInspector } from '../browser/inspector.js';
+import { config } from '../config.js';
 
 export const browserRouter = Router();
 
@@ -89,6 +90,43 @@ browserRouter.post('/action', async (req: Request, res: Response): Promise<void>
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : String(err);
     res.status(400).json({ success: false, error: message });
+  }
+});
+
+browserRouter.get('/config', (_req: Request, res: Response): void => {
+  res.json({
+    model: config.gemmaModel,
+    hasApiKey: Boolean(config.geminiApiKey),
+    timeoutMs: config.modelTimeoutMs
+  });
+});
+
+const planSchema = z.object({
+  goal: z.string().min(1)
+});
+
+browserRouter.post('/plan', async (req: Request, res: Response): Promise<void> => {
+  try {
+    if (!browserController.isLaunched()) {
+      res.status(400).json({ success: false, error: 'Browser not active. Launch browser first.' });
+      return;
+    }
+
+    const { goal } = planSchema.parse(req.body);
+    const snapshot = await PageInspector.inspect(browserController.getPage(), false);
+
+    const { gemmaPlanner } = await import('../services/gemma.js');
+    const result = await gemmaPlanner.planTask(goal, snapshot.elements);
+
+    if (!result.success) {
+      res.status(422).json(result);
+      return;
+    }
+
+    res.json(result);
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : String(err);
+    res.status(500).json({ success: false, error: message });
   }
 });
 

@@ -52,3 +52,35 @@ export interface AgentMetrics {
   lastLatencyMs: number;
   totalTokensUsed: number;
 }
+
+export type GemmaActionType = 'click' | 'fill' | 'select' | 'check' | 'uncheck' | 'inspect';
+
+export interface PlannedAction {
+  type: GemmaActionType;
+  elementId: string;
+  value?: string;
+  expectedResult: string;
+  description?: string;
+}
+
+export interface PlannedTask {
+  goal: string;
+  explanation: string;
+  actions: PlannedAction[];
+}
+
+export interface GemmaPlanTelemetry {
+  promptTokens: number;
+  completionTokens: number;
+  totalTokens: number;
+  latencyMs: number;
+  model: string;
+}
+
+export interface GemmaPlanResult {
+  success: boolean;
+  plan?: PlannedTask;
+  error?: string;
+  metrics: GemmaPlanTelemetry;
+  rawResponse?: string;
+}
