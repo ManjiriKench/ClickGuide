@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Workspace - Countdown Challenge</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body data-theme="light">
+  <div class="app-layout">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-badge">AW</div>
+        <h2>AdminHub</h2>
+      </div>
+      <nav class="nav-menu">
+        <a href="index.html" class="nav-item" id="nav-settings">Settings</a>
+        <a href="challenge.html" class="nav-item active" id="nav-challenge">Countdown Challenge</a>
+      </nav>
+      <div class="user-profile">
+        <div class="avatar">MK</div>
+        <div>
+          <div class="user-name">Manjiri Kench</div>
+          <div class="user-role">Workspace Owner</div>
+        </div>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <header class="page-header">
+        <div>
+          <h1 id="challenge-title">Countdown Challenge</h1>
+          <p class="subtitle">Timed operational tasks for high-speed browser automation testing.</p>
+        </div>
+        <div class="header-actions">
+          <span class="badge badge-warning" id="challenge-timer">00:45.00</span>
+        </div>
+      </header>
+
+      <section class="card challenge-card">
+        <div class="card-header">
+          <h3>Target Objective</h3>
+          <p>Complete the required administrative sequence before the countdown expires.</p>
+        </div>
+
+        <div class="task-checklist">
+          <div class="task-item" id="task-1">
+            <span class="task-bullet">1</span>
+            <div class="task-details">
+              <strong>Toggle Security Override</strong>
+              <p>Disable legacy protocol encryption fallbacks.</p>
+            </div>
+            <label class="switch">
+              <input type="checkbox" id="security-override" name="securityOverride">
+              <span class="slider"></span>
+            </label>
+          </div>
+
+          <div class="task-item" id="task-2">
+            <span class="task-bullet">2</span>
+            <div class="task-details">
+              <strong>Select Emergency Region</strong>
+              <p>Designate backup datacenter cluster.</p>
+            </div>
+            <select id="emergency-region" class="select-input">
+              <option value="us-east">US East (N. Virginia)</option>
+              <option value="eu-west">EU West (Frankfurt)</option>
+              <option value="ap-south">AP South (Mumbai)</option>
+            </select>
+          </div>
+
+          <div class="task-item" id="task-3">
+            <span class="task-bullet">3</span>
+            <div class="task-details">
+              <strong>Authorize Migration</strong>
+              <p>Provide verification code to complete handshake.</p>
+            </div>
+            <input type="text" id="auth-code" class="text-input" placeholder="Enter code 'CONFIRM-2026'">
+          </div>
+        </div>
+
+        <div class="form-footer">
+          <div class="status-container">
+            <span id="challenge-status" class="status-text neutral">Awaiting sequence start</span>
+          </div>
+          <div class="button-group">
+            <button type="button" id="start-timer-btn" class="btn btn-secondary">Start Timer</button>
+            <button type="button" id="submit-challenge-btn" class="btn btn-primary">Submit Verification</button>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

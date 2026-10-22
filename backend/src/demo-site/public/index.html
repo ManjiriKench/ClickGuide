@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Workspace - Settings</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body data-theme="light">
+  <div class="app-layout">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-badge">AW</div>
+        <h2>AdminHub</h2>
+      </div>
+      <nav class="nav-menu">
+        <a href="index.html" class="nav-item active" id="nav-settings">Settings</a>
+        <a href="challenge.html" class="nav-item" id="nav-challenge">Countdown Challenge</a>
+      </nav>
+      <div class="user-profile">
+        <div class="avatar">MK</div>
+        <div>
+          <div class="user-name">Manjiri Kench</div>
+          <div class="user-role">Workspace Owner</div>
+        </div>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <header class="page-header">
+        <div>
+          <h1 id="page-title">Workspace Settings</h1>
+          <p class="subtitle">Manage communication preferences, export formats, and interface display.</p>
+        </div>
+        <div class="header-actions">
+          <span class="badge" id="system-status">System Ready</span>
+        </div>
+      </header>
+
+      <section class="card settings-card">
+        <div class="card-header">
+          <h3>Preferences & Notifications</h3>
+          <p>Configure how automated reports and announcements are delivered.</p>
+        </div>
+
+        <form id="settings-form" class="settings-form">
+          <div class="setting-group">
+            <div class="setting-info">
+              <label for="promo-notifications" class="setting-label">Promotional Notifications</label>
+              <span class="setting-desc">Receive occasional product announcements, feature highlights, and offers.</span>
+            </div>
+            <label class="switch">
+              <input type="checkbox" id="promo-notifications" name="promoNotifications" checked>
+              <span class="slider"></span>
+            </label>
+          </div>
+
+          <div class="setting-group">
+            <div class="setting-info">
+              <label for="email-notifications" class="setting-label">Email Notifications</label>
+              <span class="setting-desc">Receive critical account activity alerts and administrative security updates.</span>
+            </div>
+            <label class="switch">
+              <input type="checkbox" id="email-notifications" name="emailNotifications" checked>
+              <span class="slider"></span>
+            </label>
+          </div>
+
+          <div class="setting-group">
+            <div class="setting-info">
+              <label for="report-format" class="setting-label">Default Report Format</label>
+              <span class="setting-desc">File format applied when scheduled data exports are generated.</span>
+            </div>
+            <select id="report-format" name="reportFormat" class="select-input">
+              <option value="PDF">PDF Document (.pdf)</option>
+              <option value="CSV">Comma-Separated Values (.csv)</option>
+              <option value="XLSX">Excel Spreadsheet (.xlsx)</option>
+            </select>
+          </div>
+
+          <div class="setting-group">
+            <div class="setting-info">
+              <label for="theme-selector" class="setting-label">Workspace Theme</label>
+              <span class="setting-desc">Choose between standard light mode or high-contrast dark mode.</span>
+            </div>
+            <select id="theme-selector" name="theme" class="select-input">
+              <option value="Light">Light</option>
+              <option value="Dark">Dark</option>
+            </select>
+          </div>
+
+          <div class="form-footer">
+            <div class="status-container">
+              <span id="save-status" class="status-text neutral">Ready</span>
+            </div>
+            <div class="button-group">
+              <button type="button" id="reset-defaults-btn" class="btn btn-secondary">Reset Defaults</button>
+              <button type="submit" id="save-settings-btn" class="btn btn-primary">Save Changes</button>
+            </div>
+          </div>
+        </form>
+      </section>
+
+      <section class="card summary-card">
+        <div class="card-header">
+          <h3>Current Active Configuration</h3>
+        </div>
+        <div class="state-grid">
+          <div class="state-pill">
+            <span class="label">Promotions:</span>
+            <strong id="state-promo">Enabled</strong>
+          </div>
+          <div class="state-pill">
+            <span class="label">Email Alerts:</span>
+            <strong id="state-email">Enabled</strong>
+          </div>
+          <div class="state-pill">
+            <span class="label">Export Format:</span>
+            <strong id="state-format">PDF</strong>
+          </div>
+          <div class="state-pill">
+            <span class="label">Active Theme:</span>
+            <strong id="state-theme">Light</strong>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
