@@ -32,6 +32,11 @@ test('ClickGuide Foundation Integration Suite', async (t) => {
     await browserController.launch();
     assert.strictEqual(browserController.isLaunched(), true);
 
+    await browserController.getPage().evaluate(() => {
+      localStorage.clear();
+    });
+    await browserController.navigate(`http://127.0.0.1:${config.port}/demo/index.html`);
+
     const screenshot = await browserController.captureScreenshot();
     assert.ok(typeof screenshot === 'string');
     assert.ok(screenshot.length > 100);
