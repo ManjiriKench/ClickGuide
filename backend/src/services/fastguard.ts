@@ -264,6 +264,14 @@ export class FastGuardService {
           break;
         case 'fill':
           await locator.fill(action.value || '');
+          if (/search|query/i.test(action.elementId) || /search/i.test(action.description || '')) {
+            try {
+              await locator.press('Enter');
+              await page.waitForLoadState('domcontentloaded', { timeout: 4000 }).catch(() => {});
+            } catch {
+              // Non-fatal
+            }
+          }
           break;
         case 'select':
           if (!action.value) throw new Error('Value required for select action');

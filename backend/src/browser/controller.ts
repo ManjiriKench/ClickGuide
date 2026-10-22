@@ -122,6 +122,14 @@ export class BrowserController {
 
         case 'fill':
           await locator.fill(action.value || '');
+          if (/search|query/i.test(action.selector) || /search/i.test(action.description || '')) {
+            try {
+              await locator.press('Enter');
+              await page.waitForLoadState('domcontentloaded', { timeout: 4000 }).catch(() => {});
+            } catch {
+              // Non-fatal submit
+            }
+          }
           break;
 
         case 'select':
