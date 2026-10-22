@@ -114,7 +114,6 @@ REQUIRED JSON FORMAT:
         model,
         contents: prompt,
         config: {
-          responseMimeType: 'application/json',
           temperature: 0.1
         }
       });
