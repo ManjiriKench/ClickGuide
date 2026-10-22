@@ -60,6 +60,10 @@ export interface ModelMetrics {
   totalActionsExecuted: number;
   verificationSuccessRate: number;
   model?: string;
+  contextFullTokens?: number;
+  contextCompressedTokens?: number;
+  contextReductionPercent?: number;
+  contextLatencyMs?: number;
 }
 
 export interface PlannedAction {

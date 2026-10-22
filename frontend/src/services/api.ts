@@ -104,3 +104,71 @@ export async function planTaskWithGemma(goal: string): Promise<import('../types/
   return data;
 }
 
+export async function fetchContextReduction(mode: 'full' | 'compressed' | 'incremental' = 'compressed', goal?: string) {
+  const params = new URLSearchParams({ mode });
+  if (goal) params.append('goal', goal);
+  const res = await fetch(`${API_BASE}/context?${params.toString()}`);
+  if (!res.ok) throw new Error(`Context retrieval failed (${res.status})`);
+  return res.json();
+}
+
+export async function executeFastGuard(action: import('../types/index.js').PlannedAction, goal: string, taskId?: string) {
+  const res = await fetch(`${API_BASE}/fastguard/execute`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ action, goal, taskId })
+  });
+  if (!res.ok) {
+    const errorData = await res.json().catch(() => ({}));
+    throw new Error(errorData.error || `FastGuard execution failed (${res.status})`);
+  }
+  return res.json();
+}
+
+export async function fetchLedgerReceipts() {
+  const res = await fetch(`${API_BASE}/ledger`);
+  if (!res.ok) throw new Error(`Ledger retrieval failed (${res.status})`);
+  return res.json();
+}
+
+export async function rewindLedgerAction(receiptId: string) {
+  const res = await fetch(`${API_BASE}/ledger/rewind`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ receiptId })
+  });
+  if (!res.ok) {
+    const errorData = await res.json().catch(() => ({}));
+    throw new Error(errorData.error || `Rewind failed (${res.status})`);
+  }
+  return res.json();
+}
+
+export async function executeDeadlineChallenge() {
+  const res = await fetch(`${API_BASE}/deadline/run`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' }
+  });
+  if (!res.ok) {
+    const errorData = await res.json().catch(() => ({}));
+    throw new Error(errorData.error || `Deadline challenge failed (${res.status})`);
+  }
+  return res.json();
+}
+
+export async function showGuidedHighlight(elementId: string, instruction?: string) {
+  const res = await fetch(`${API_BASE}/guided/highlight`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ elementId, instruction })
+  });
+  return res.json();
+}
+
+export async function clearGuidedHighlight() {
+  const res = await fetch(`${API_BASE}/guided/clear`, {
+    method: 'POST'
+  });
+  return res.json();
+}
+
