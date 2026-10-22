@@ -13,5 +13,5 @@ export const config = {
   actionTimeoutMs: 5000,
   geminiApiKey: process.env.GEMINI_API_KEY || '',
   gemmaModel: process.env.GEMMA_MODEL || 'gemma-4-26b-a4b-it',
-  modelTimeoutMs: parseInt(process.env.MODEL_TIMEOUT_MS || '25000', 10)
+  modelTimeoutMs: parseInt(process.env.MODEL_TIMEOUT_MS || '45000', 10)
 };

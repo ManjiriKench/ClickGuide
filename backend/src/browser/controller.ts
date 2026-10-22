@@ -1,9 +1,10 @@
-import { chromium, BrowserContext, Page } from 'playwright';
+import { chromium, Browser, BrowserContext, Page } from 'playwright';
 import fs from 'fs';
 import { config } from '../config.js';
 import { BrowserAction, ActionResult } from '../types/index.js';
 
 export class BrowserController {
+  private browser: Browser | null = null;
   private context: BrowserContext | null = null;
   private page: Page | null = null;
   private isInitializing: boolean = false;
@@ -20,23 +21,22 @@ export class BrowserController {
     this.isInitializing = true;
 
     try {
-      if (!fs.existsSync(config.browserProfileDir)) {
-        fs.mkdirSync(config.browserProfileDir, { recursive: true });
+      if (!this.browser || !this.browser.isConnected()) {
+        this.browser = await chromium.launch({
+          headless: config.browserHeadless,
+          args: [
+            '--no-default-browser-check',
+            '--no-first-run',
+            '--disable-extensions'
+          ]
+        });
       }
 
-      this.context = await chromium.launchPersistentContext(config.browserProfileDir, {
-        headless: config.browserHeadless,
-        viewport: { width: 1280, height: 800 },
-        args: [
-          '--no-default-browser-check',
-          '--no-first-run',
-          '--disable-extensions'
-        ]
+      this.context = await this.browser.newContext({
+        viewport: { width: 1280, height: 800 }
       });
 
-      const pages = this.context.pages();
-      this.page = pages.length > 0 ? pages[0] : await this.context.newPage();
-
+      this.page = await this.context.newPage();
       this.page.setDefaultTimeout(config.actionTimeoutMs);
 
       await this.navigate(config.demoBaseUrl);
@@ -171,10 +171,14 @@ export class BrowserController {
 
   public async close(): Promise<void> {
     if (this.context) {
-      await this.context.close();
+      await this.context.close().catch(() => {});
       this.context = null;
-      this.page = null;
     }
+    if (this.browser) {
+      await this.browser.close().catch(() => {});
+      this.browser = null;
+    }
+    this.page = null;
   }
 }
 
