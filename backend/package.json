@@ -8,7 +8,8 @@
     "dev": "tsx watch src/server.ts",
     "build": "tsc",
     "start": "node dist/server.js",
-    "test": "tsx --test test/**/*.test.ts"
+    "test": "tsx --test test/clickguide.test.ts",
+    "test:gemma": "tsx --test test/gemma-planning.test.ts"
   },
   "dependencies": {
     "@google/genai": "^2.30.0",
